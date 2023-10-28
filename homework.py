@@ -12,7 +12,7 @@ class InfoMessage:
     calories: float
 
     MESSAGE = (
-        'Тип тренировки: {training_type}; Длительность:{duration:.3f} ч.;'
+        'Тип тренировки: {training_type}; Длительность: {duration:.3f} ч.;'
         ' Дистанция: {distance:.3f} км; Ср. скорость:'
         ' {speed:.3f} км/ч; Потрачено ккал: {calories:.3f}.'
     )
@@ -134,6 +134,11 @@ def read_package(workout_type: str, data: list[int]) -> Training:
     return INPUT_TO_CLASS_MATCH[workout_type][index_to_retrieve_class](*data)
 
 
+def main(training: Training) -> None:
+    """Main function."""
+    print(training.show_training_info().get_message())
+
+
 if __name__ == '__main__':
     packages = [
         ('SWM', [720, 1, 80, 25, 40]),
@@ -142,6 +147,5 @@ if __name__ == '__main__':
     ]
 
     for workout_type, data in packages:
-        print(
-            read_package(workout_type, data).show_training_info().get_message()
-        )
+        training = read_package(workout_type, data)
+        main(training)
