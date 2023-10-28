@@ -1,20 +1,14 @@
 from dataclasses import dataclass, fields, asdict
 
-read_package_key_error_message = (
-    'Workout type from input package did not match any corresponding key'
-    ' in the dictionary and no value representing Training class could be'
-    ' retrieved. The input package data should contain data types that'
-    'match the keys in the dictionary.'
+READ_PACKAGE_MESSAGE_KEY = (
+    '{} not found among keys of {} ,so no Training class value could be'
+    ' retrieved.Add this argument to dictionary or modify argument.'
 )
-read_package_value_error_message = (
-    'The number of entries received in the input data dictionary'
-    'does not match the number of arguments expected to be received'
-    'by the class.'
+READ_PACKAGE_MESSAGE_VALUE = (
+    'The number of arguments in {} doesnt match {}. Also check if {}'
+    ' is correct input.'
 )
-get_spent_calories_not_implemented_error_message = (
-    'Method only works in child classes. Define this methods behavior'
-    'in the child class where it is missing.'
-)
+GET_SPENT_CALORIES_MESSAGE = 'define in child class of Training'
 
 
 @dataclass
@@ -34,8 +28,7 @@ class InfoMessage:
     )
 
     def get_message(self) -> str:
-        info_msg_dict = asdict(self)
-        return self.MESSAGE.format(**info_msg_dict)
+        return self.MESSAGE.format(**asdict(self))
 
 
 @dataclass
@@ -59,9 +52,7 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Get the number of calories spent in kcal."""
-        raise NotImplementedError(
-            get_spent_calories_not_implemented_error_message
-        )
+        raise NotImplementedError(GET_SPENT_CALORIES_MESSAGE)
 
     def show_training_info(self) -> InfoMessage:
         """Return info message about the training completed."""
@@ -93,10 +84,8 @@ class SportsWalking(Training):
     CALORY_MULTIPLIER_2 = 0.029
     SEC_IN_MIN = 60
     CM_IN_M = 100
-    KM_H_TO_MT_SEC_RATIO = float(
-        round(
-            Training.M_IN_KM / (Training.MIN_IN_HR * SEC_IN_MIN), 3
-        )
+    KM_H_TO_MT_SEC_RATIO = round(
+        Training.M_IN_KM / (Training.MIN_IN_HR * SEC_IN_MIN), 3
     )
 
     height: float
@@ -120,8 +109,8 @@ class SportsWalking(Training):
 @dataclass
 class Swimming(Training):
     LEN_STEP = 1.38
-    CALORIES_ADDEND_1 = 1.1
-    CALORIES_MULTIPLIER_1 = 2
+    CALORIES_ADDED = 1.1
+    CALORIES_MULTIPLIER = 2
 
     length_pool: float
     count_pool: int
@@ -134,9 +123,9 @@ class Swimming(Training):
     def get_spent_calories(self) -> float:
         return (
             (
-                self.get_mean_speed() + self.CALORIES_ADDEND_1
+                self.get_mean_speed() + self.CALORIES_ADDED
             )
-            * self.CALORIES_MULTIPLIER_1 * self.weight * self.duration
+            * self.CALORIES_MULTIPLIER * self.weight * self.duration
         )
 
 
@@ -150,10 +139,16 @@ TRAINING_CLASSES = {
 def read_package(workout_type: str, data: list[int]) -> Training:
     """Read the sensor data."""
     if workout_type not in TRAINING_CLASSES:
-        raise KeyError(read_package_key_error_message)
+        raise KeyError(
+            READ_PACKAGE_MESSAGE_KEY.format(workout_type, TRAINING_CLASSES)
+        )
     training_class, num_fields_data = TRAINING_CLASSES[workout_type]
     if len(data) != num_fields_data:
-        raise ValueError(read_package_value_error_message)
+        raise ValueError(
+            READ_PACKAGE_MESSAGE_VALUE.format(
+                data, num_fields_data, workout_type
+            )
+        )
     return training_class(*data)
 
 
