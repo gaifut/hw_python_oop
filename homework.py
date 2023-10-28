@@ -1,4 +1,20 @@
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, asdict
+
+read_package_key_error_message = (
+    'Workout type from input package did not match any corresponding key'
+    ' in the dictionary and no value representing Training class could be'
+    ' retrieved. The input package data should contain data types that'
+    'match the keys in the dictionary.'
+)
+read_package_value_error_message = (
+    'The number of entries received in the input data dictionary'
+    'does not match the number of arguments expected to be received'
+    'by the class.'
+)
+get_spent_calories_not_implemented_error_message = (
+    'Method only works in child classes. Define this methods behavior'
+    'in the child class where it is missing.'
+)
 
 
 @dataclass
@@ -18,10 +34,8 @@ class InfoMessage:
     )
 
     def get_message(self) -> str:
-        return self.MESSAGE.format(
-            training_type=self.training_type, duration=self.duration,
-            distance=self.distance, speed=self.speed, calories=self.calories
-        )
+        info_msg_dict = asdict(self)
+        return self.MESSAGE.format(**info_msg_dict)
 
 
 @dataclass
@@ -45,12 +59,14 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Get the number of calories spent in kcal."""
-        raise NotImplementedError('Method only works in child classes')
+        raise NotImplementedError(
+            get_spent_calories_not_implemented_error_message
+        )
 
     def show_training_info(self) -> InfoMessage:
         """Return info message about the training completed."""
         return InfoMessage(
-            self.__class__.__name__, self.duration,
+            type(self).__name__, self.duration,
             self.get_distance(), self.get_mean_speed(),
             self.get_spent_calories()
         )
@@ -62,8 +78,11 @@ class Running(Training):
 
     def get_spent_calories(self) -> float:
         return (
-            (self.CALORIES_MEAN_SPEED_MULTIPLIER * self.get_mean_speed()
-             + self.CALORIES_MEAN_SPEED_SHIFT) * self.weight / self.M_IN_KM
+            (
+                self.CALORIES_MEAN_SPEED_MULTIPLIER * self.get_mean_speed()
+                + self.CALORIES_MEAN_SPEED_SHIFT
+            )
+            * self.weight / self.M_IN_KM
             * self.duration * self.MIN_IN_HR
         )
 
@@ -75,17 +94,26 @@ class SportsWalking(Training):
     SEC_IN_MIN = 60
     CM_IN_M = 100
     KM_H_TO_MT_SEC_RATIO = float(
-        round(Training.M_IN_KM / (Training.MIN_IN_HR * SEC_IN_MIN), 3)
+        round(
+            Training.M_IN_KM / (Training.MIN_IN_HR * SEC_IN_MIN), 3
+        )
     )
 
     height: float
 
     def get_spent_calories(self) -> float:
         return (
-            (self.CALORY_MULTIPLIER_1 * self.weight + (
-             (self.get_mean_speed() * self.KM_H_TO_MT_SEC_RATIO)**2
-             / (self.height / self.CM_IN_M)) * self.CALORY_MULTIPLIER_2
-             * self.weight) * self.duration * self.MIN_IN_HR
+            (
+                self.CALORY_MULTIPLIER_1 * self.weight
+                + (
+                    (
+                        self.get_mean_speed() * self.KM_H_TO_MT_SEC_RATIO
+                    )
+                    ** 2 / (self.height / self.CM_IN_M)
+                )
+                * self.CALORY_MULTIPLIER_2 * self.weight
+            )
+            * self.duration * self.MIN_IN_HR
         )
 
 
@@ -105,33 +133,28 @@ class Swimming(Training):
 
     def get_spent_calories(self) -> float:
         return (
-            (self.get_mean_speed() + self.CALORIES_ADDEND_1)
+            (
+                self.get_mean_speed() + self.CALORIES_ADDEND_1
+            )
             * self.CALORIES_MULTIPLIER_1 * self.weight * self.duration
         )
 
 
-INPUT_TO_CLASS_MATCH = {
-    'SWM': [Swimming, 5], 'RUN': [Running, 3], 'WLK': [SportsWalking, 4]
+TRAINING_CLASSES = {
+    'SWM': [Swimming, len(fields(Swimming))],
+    'RUN': [Running, len(fields(Running))],
+    'WLK': [SportsWalking, len(fields(SportsWalking))]
 }
-index_to_retrieve_class = 0
-index_to_retrieve_class_arg_nmbr = 1
 
 
 def read_package(workout_type: str, data: list[int]) -> Training:
     """Read the sensor data."""
-    if workout_type not in INPUT_TO_CLASS_MATCH:
-        raise KeyError('workout type did not match any class in dictionary')
-    elif (
-        len(fields(INPUT_TO_CLASS_MATCH[workout_type][index_to_retrieve_class]
-            (*data))) != INPUT_TO_CLASS_MATCH[workout_type]
-            [index_to_retrieve_class_arg_nmbr]
-    ):
-        raise TypeError(
-            'the number of entries received in the input data dictionary'
-            'does not match the number of arguments expected to be received'
-            'by the class'
-        )
-    return INPUT_TO_CLASS_MATCH[workout_type][index_to_retrieve_class](*data)
+    if workout_type not in TRAINING_CLASSES:
+        raise KeyError(read_package_key_error_message)
+    training_class, num_fields_data = TRAINING_CLASSES[workout_type]
+    if len(data) != num_fields_data:
+        raise ValueError(read_package_value_error_message)
+    return training_class(*data)
 
 
 def main(training: Training) -> None:
@@ -147,5 +170,4 @@ if __name__ == '__main__':
     ]
 
     for workout_type, data in packages:
-        training = read_package(workout_type, data)
-        main(training)
+        main(read_package(workout_type, data))
