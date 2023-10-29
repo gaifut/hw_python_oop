@@ -1,14 +1,12 @@
 from dataclasses import dataclass, fields, asdict
 
-READ_PACKAGE_MESSAGE_KEY = (
-    '{} not found among keys of {} ,so no Training class value could be'
-    ' retrieved.Add this argument to dictionary or modify argument.'
+READ_PACKAGE_MESSAGE_NAME_NOT_FOUND = (
+    '{} not found in {} , no Training class value can be retrieved.'
 )
 READ_PACKAGE_MESSAGE_VALUE = (
-    'The number of arguments in {} doesnt match {}. Also check if {}'
-    ' is correct input.'
+    'The number of arguments in {} doesnt match {}. Check if {} is correct.'
 )
-GET_SPENT_CALORIES_MESSAGE = 'define in child class of Training'
+GET_SPENT_CALORIES_MESSAGE = 'Define in child class of Training.'
 
 
 @dataclass
@@ -84,7 +82,7 @@ class SportsWalking(Training):
     CALORY_MULTIPLIER_2 = 0.029
     SEC_IN_MIN = 60
     CM_IN_M = 100
-    KM_H_TO_MT_SEC_RATIO = round(
+    KM_H_TO_M_SEC_RATIO = round(
         Training.M_IN_KM / (Training.MIN_IN_HR * SEC_IN_MIN), 3
     )
 
@@ -96,7 +94,7 @@ class SportsWalking(Training):
                 self.CALORY_MULTIPLIER_1 * self.weight
                 + (
                     (
-                        self.get_mean_speed() * self.KM_H_TO_MT_SEC_RATIO
+                        self.get_mean_speed() * self.KM_H_TO_M_SEC_RATIO
                     )
                     ** 2 / (self.height / self.CM_IN_M)
                 )
@@ -139,8 +137,9 @@ TRAINING_CLASSES = {
 def read_package(workout_type: str, data: list[int]) -> Training:
     """Read the sensor data."""
     if workout_type not in TRAINING_CLASSES:
-        raise KeyError(
-            READ_PACKAGE_MESSAGE_KEY.format(workout_type, TRAINING_CLASSES)
+        raise ValueError(
+            READ_PACKAGE_MESSAGE_NAME_NOT_FOUND.
+            format(workout_type, TRAINING_CLASSES)
         )
     training_class, num_fields_data = TRAINING_CLASSES[workout_type]
     if len(data) != num_fields_data:
