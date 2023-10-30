@@ -1,12 +1,12 @@
 from dataclasses import dataclass, fields, asdict
 
 READ_PACKAGE_MESSAGE_NAME_NOT_FOUND = (
-    '{} not found in {} , no Training class value can be retrieved.'
+    '{} не найден в {} , невозможно вывести имя класса.'
 )
 READ_PACKAGE_MESSAGE_VALUE = (
-    'The number of arguments in {} doesnt match {}. Check if {} is correct.'
+    'Количество свойств в {} не равно {}. Проверить {} на корректность.'
 )
-GET_SPENT_CALORIES_MESSAGE = 'Define in child class of Training.'
+GET_SPENT_CALORIES_MESSAGE = 'Реализовать метод в дочернем классе.'
 
 
 @dataclass
