@@ -19,13 +19,14 @@ class InfoMessage:
 
 class Training:
     """Basic class for training."""
-    LEN_STEP = 0.65
-    TRAINING_TYPE = 'тренировка'
-    M_IN_KM = 1000
-    MIN_IN_HR = 60
-    CM_IN_M = 100
-    SEC_IN_MIN = 60
-    KM_H_TO_MT_SEC_RATIO = round(M_IN_KM / (MIN_IN_HR * SEC_IN_MIN), 3)
+
+    LEN_STEP: float = 0.65
+    TRAINING_TYPE: str = 'тренировка'
+    M_IN_KM: int = 1000
+    MIN_IN_HR: int = 60
+    CM_IN_M: int = 100
+    SEC_IN_MIN: int = 60
+    KM_H_TO_MT_SEC_RATIO: float = round(M_IN_KM / (MIN_IN_HR * SEC_IN_MIN), 3)
 
     def __init__(self, action: int, duration: float,
                  weight: float) -> None:
@@ -58,8 +59,9 @@ class Training:
 
 class Running(Training):
     """Training: running."""
-    CALORIES_MEAN_SPEED_MULTIPLIER = 18
-    CALORIES_MEAN_SPEED_SHIFT = 1.79
+
+    CALORIES_MEAN_SPEED_MULTIPLIER: int = 18
+    CALORIES_MEAN_SPEED_SHIFT: float = 1.79
     TRAINING_TYPE = 'Running'
 
     def get_spent_calories(self) -> float:
@@ -71,15 +73,16 @@ class Running(Training):
 
 class SportsWalking(Training):
     """Training: racewalking."""
-    CALORY_MULTIPLIER_1 = 0.035
-    CALORY_MULTIPLIER_2 = 0.029
+
+    CALORY_MULTIPLIER_1: float = 0.035
+    CALORY_MULTIPLIER_2: float = 0.029
     # Изначально названия ниже у меня шли на русском, исправил из-за Pytest.
     TRAINING_TYPE = 'SportsWalking'
     # Ниже идут константы исключительно для Pytest.
     # У меня есть все эти данные в классе-родителе. Изначально я вообще
     # считал скорость м/с в рамках отдельной переменной в этом классе.
-    CONSTANT_1_TO_PASS_PYTEST = 0.278
-    CONSTANT_2_TO_PASS_PYTEST = 100
+    CONSTANT_1_TO_PASS_PYTEST: float = 0.278
+    CONSTANT_2_TO_PASS_PYTEST: int = 100
 
     def __init__(self, action: int, duration: float,
                  weight: float, height: float) -> None:
@@ -96,10 +99,11 @@ class SportsWalking(Training):
 
 class Swimming(Training):
     """Training: swimming."""
-    LEN_STEP = 1.38
-    CALORIES_ADDEND_1 = 1.1
-    CALORIES_MULTIPLIER_1 = 2
-    TRAINING_TYPE = 'Swimming'
+
+    LEN_STEP: float = 1.38
+    CALORIES_ADDEND_1: float = 1.1
+    CALORIES_MULTIPLIER_1: int = 2
+    TRAINING_TYPE: str = 'Swimming'
 
     def __init__(self, action: int, duration: float,
                  weight: float, length_pool: float, count_pool: float) -> None:
@@ -129,7 +133,7 @@ def main(training: Training) -> None:
 
 
 if __name__ == '__main__':
-    packages = [
+    packages: list[str, tuple(int)] = [
         ('SWM', [720, 1, 80, 25, 40]),
         ('RUN', [15000, 1, 75]),
         ('WLK', [9000, 1, 75, 180]),
